@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+body { 
+  font-family: 'Inter', sans-serif; 
+  background-color: #ffffff; 
+  color: #000000; 
+}
+
+.clean-card {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+}
+
+/* Box Breathing Animation 4-4-8 */
+.breathing-circle {
+  animation: breathe 16s infinite linear;
+}
+@keyframes breathe {
+  0% { transform: scale(1); } /* Start Inhale */
+  25% { transform: scale(1.6); } /* End Inhale (4s), Start Hold */
+  50% { transform: scale(1.6); } /* End Hold (4s), Start Exhale */
+  100% { transform: scale(1); } /* End Exhale (8s) */
+}
+
+.breathing-text::after {
+  content: "Einatmen...";
+  animation: breatheText 16s infinite linear;
+}
+@keyframes breatheText {
+  0%, 24.9% { content: "Einatmen..."; }
+  25%, 49.9% { content: "Halten..."; }
+  50%, 99.9% { content: "Ausatmen..."; }
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e5e5e5; border-radius: 4px; }
+
+input {
+  color: #000;
+  accent-color: #000;
+}
+::placeholder {
+  color: #a3a3a3;
+}
