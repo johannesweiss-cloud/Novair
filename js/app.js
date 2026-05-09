@@ -83,6 +83,21 @@ function toggleSettingsModal() {
 
 window.toggleSettingsModal = toggleSettingsModal;
 
+function resetTimer() {
+  if (confirm('Ein Rückfall ist völlig normal. Möchtest du den Timer jetzt neu starten?')) {
+    const now = new Date();
+    localStorage.setItem('novair_start_time', now.getTime().toString());
+    
+    const localNow = new Date();
+    localNow.setMinutes(localNow.getMinutes() - localNow.getTimezoneOffset());
+    quitInput.value = localNow.toISOString().slice(0,19);
+    
+    updateApp();
+    toggleSettingsModal();
+  }
+}
+window.resetTimer = resetTimer;
+
 function saveConfig() {
   localStorage.setItem('novair_motivation', motivationInput.value);
   localStorage.setItem('novair_cigsDay', cigsPerDayInput.value);
@@ -200,6 +215,15 @@ function updateApp() {
   const cigsPerMinute = cigsPerDay / 1440;
   const avoidedCigs = cigsPerMinute * totalMinForCalc;
   const moneySaved = (avoidedCigs / cigsPerPack) * pricePerPack;
+
+  // Motivation Display
+  const mot = localStorage.getItem('novair_motivation');
+  const motEl = document.getElementById('display-motivation');
+  if (motEl && mot) {
+    motEl.innerText = `Für: ${mot}`;
+  } else if (motEl) {
+    motEl.innerText = '';
+  }
 
   // Stats Update
   document.getElementById('stat-days').innerText = diffDays.toString();
