@@ -1,13 +1,22 @@
 // Elements
 const welcomeView = document.getElementById('welcome-view');
+const onboardingView = document.getElementById('onboarding-view');
 const dashboardView = document.getElementById('dashboard-view');
 const startBtn = document.getElementById('start-btn');
+const finishOnboardingBtn = document.getElementById('finish-onboarding-btn');
 
+// Settings Modal Elements
 const motivationInput = document.getElementById('motivation-text');
 const quitInput = document.getElementById('quit-date');
 const cigsPerDayInput = document.getElementById('cigs-per-day');
 const cigsPerPackInput = document.getElementById('cigs-per-pack');
 const priceInput = document.getElementById('price-per-pack');
+
+// Onboarding Elements
+const obMotivationInput = document.getElementById('ob-motivation');
+const obCigsDayInput = document.getElementById('ob-cigs-day');
+const obCigsPackInput = document.getElementById('ob-cigs-pack');
+const obPriceInput = document.getElementById('ob-price-pack');
 
 // Load Configuration safely
 const savedMotivation = localStorage.getItem('novair_motivation');
@@ -60,6 +69,19 @@ function toggleCravingModal() {
 
 // Make toggleCravingModal available globally since it's called from HTML inline onclick
 window.toggleCravingModal = toggleCravingModal;
+
+function toggleSettingsModal() {
+  const modal = document.getElementById('settings-modal');
+  if (modal.classList.contains('hidden')) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  } else {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+window.toggleSettingsModal = toggleSettingsModal;
 
 function saveConfig() {
   localStorage.setItem('novair_motivation', motivationInput.value);
@@ -117,15 +139,36 @@ function initDashboard() {
 }
 
 startBtn.addEventListener('click', () => {
+  welcomeView.classList.add('hidden');
+  onboardingView.classList.remove('hidden');
+  setTimeout(() => lucide.createIcons(), 50);
+});
+
+finishOnboardingBtn.addEventListener('click', () => {
+  const mot = obMotivationInput.value || '';
+  const cigsDay = obCigsDayInput.value || '20';
+  const cigsPack = obCigsPackInput.value || '20';
+  const price = obPriceInput.value || '8.00';
+  
+  localStorage.setItem('novair_motivation', mot);
+  localStorage.setItem('novair_cigsDay', cigsDay);
+  localStorage.setItem('novair_cigsPack', cigsPack);
+  localStorage.setItem('novair_pricePack', price);
+  
+  // Set values in Settings Modal
+  motivationInput.value = mot;
+  cigsPerDayInput.value = cigsDay;
+  cigsPerPackInput.value = cigsPack;
+  priceInput.value = price;
+
   const now = new Date();
   localStorage.setItem('novair_start_time', now.getTime().toString());
   
-  // Update Input Field
   const localNow = new Date();
   localNow.setMinutes(localNow.getMinutes() - localNow.getTimezoneOffset());
   quitInput.value = localNow.toISOString().slice(0,19);
 
-  welcomeView.classList.add('hidden');
+  onboardingView.classList.add('hidden');
   dashboardView.classList.remove('hidden');
   
   initDashboard();
@@ -237,6 +280,7 @@ function updateApp() {
 const existingStartTime = localStorage.getItem('novair_start_time');
 if (existingStartTime) {
   welcomeView.classList.add('hidden');
+  onboardingView.classList.add('hidden');
   dashboardView.classList.remove('hidden');
   
   const d = new Date(parseInt(existingStartTime, 10));
@@ -248,6 +292,7 @@ if (existingStartTime) {
   updateInterval = setInterval(updateApp, 1000);
 } else {
   welcomeView.classList.remove('hidden');
+  onboardingView.classList.add('hidden');
   dashboardView.classList.add('hidden');
   setTimeout(() => lucide.createIcons(), 50);
 }

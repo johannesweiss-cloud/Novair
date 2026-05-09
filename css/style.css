@@ -42,3 +42,10 @@ input {
 ::placeholder {
   color: #a3a3a3;
 }
+
+.badge-unlocked {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+  border-color: #000 !important;
+  background-color: #fafafa !important;
+}
