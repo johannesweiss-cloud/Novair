@@ -1,0 +1,19 @@
+{
+  "name": "novair",
+  "version": "1.0.0",
+  "description": "Dein Rauchfrei-Begleiter",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve",
+    "preview": "npx serve"
+  },
+  "keywords": [
+    "health",
+    "quit-smoking"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/speed-insights": "^1.0.15"
+  }
+}
