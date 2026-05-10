@@ -1,3 +1,4 @@
+// === DOM REFERENCES ===
 // Elements
 const welcomeView = document.getElementById('welcome-view');
 const onboardingView = document.getElementById('onboarding-view');
@@ -25,6 +26,7 @@ const obCigsDayInput = document.getElementById('ob-cigs-day');
 const obCigsPackInput = document.getElementById('ob-cigs-pack');
 const obPriceInput = document.getElementById('ob-price-pack');
 
+// === CONFIG INITIALIZATION ===
 // Load Configuration safely
 const savedMotivation = localStorage.getItem('novair_motivation');
 const savedCigsDay = localStorage.getItem('novair_cigsDay');
@@ -37,8 +39,8 @@ cigsPerPackInput.value = savedCigsPack || "20";
 priceInput.value = savedPrice || "8.00";
 
 goalInputs.forEach((g, i) => {
-  const savedName = localStorage.getItem(`novair_goal${i+1}_name`);
-  const savedPrice = localStorage.getItem(`novair_goal${i+1}_price`);
+  const savedName = localStorage.getItem(`novair_goal${i + 1}_name`);
+  const savedPrice = localStorage.getItem(`novair_goal${i + 1}_price`);
   if (savedName) g.name.value = savedName;
   if (savedPrice) g.price.value = savedPrice;
 });
@@ -48,6 +50,7 @@ let fpInstance;
 let celebratedMilestones = JSON.parse(localStorage.getItem('novair_celebrated') || '[]');
 let currentShareData = null;
 
+// === DATA ===
 // Milestones definition (in minutes)
 const milestones = [
   { name: "Blutdruck normalisiert sich", time: 20, desc: "Puls und Blutdruck fallen auf normale Werte." },
@@ -73,6 +76,7 @@ const badgesDef = [
   { id: 'cig_1000', icon: 'crown', title: '1.000 vermieden', condition: (_, __, avoided) => avoided >= 1000 }
 ];
 
+// === MODALS ===
 function toggleCravingModal() {
   const modal = document.getElementById('craving-modal');
   if (modal.classList.contains('hidden')) {
@@ -100,41 +104,57 @@ function toggleSettingsModal() {
 
 window.toggleSettingsModal = toggleSettingsModal;
 
+// === SETTINGS & CONFIG ===
 function resetTimer() {
   if (confirm('Ein Rückfall ist völlig normal. Möchtest du den Timer jetzt neu starten?')) {
     const now = new Date();
     localStorage.setItem('novair_start_time', now.getTime().toString());
-    
+    localStorage.setItem('novair_slipups', '0');
+
     const localNow = new Date();
     localNow.setMinutes(localNow.getMinutes() - localNow.getTimezoneOffset());
     if (fpInstance) fpInstance.setDate(localNow, false);
-    else quitInput.value = localNow.toISOString().slice(0,19);
-    
+    else quitInput.value = localNow.toISOString().slice(0, 19);
+
     updateApp();
     toggleSettingsModal();
   }
 }
 window.resetTimer = resetTimer;
 
+function logSlipUp(source) {
+  if (confirm('Hast du eine Zigarette geraucht? Ein Ausrutscher ist menschlich. Dein Tages-Zähler läuft weiter, wir ziehen nur diese Zigarette vom Ersparten ab.')) {
+    const currentSlipups = parseInt(localStorage.getItem('novair_slipups') || '0', 10);
+    localStorage.setItem('novair_slipups', (currentSlipups + 1).toString());
+    updateApp();
+    if (source === 'craving') {
+      toggleCravingModal();
+    } else {
+      toggleSettingsModal();
+    }
+  }
+}
+window.logSlipUp = logSlipUp;
+
 function swapGoal(index, dir) {
   const idx = index - 1;
   const swapIdx = idx + dir;
   if (swapIdx < 0 || swapIdx > 2) return;
-  
+
   const g1 = goalInputs[idx];
   const g2 = goalInputs[swapIdx];
-  
+
   const tempName = g1.name.value;
   const tempPrice = g1.price.value;
-  
+
   g1.name.value = g2.name.value;
   g1.price.value = g2.price.value;
-  
+
   g2.name.value = tempName;
   g2.price.value = tempPrice;
-  
+
   saveConfig();
-  if(localStorage.getItem('novair_start_time')) updateApp();
+  if (localStorage.getItem('novair_start_time')) updateApp();
 }
 window.swapGoal = swapGoal;
 
@@ -143,10 +163,10 @@ function saveConfig() {
   localStorage.setItem('novair_cigsDay', cigsPerDayInput.value);
   localStorage.setItem('novair_cigsPack', cigsPerPackInput.value);
   localStorage.setItem('novair_pricePack', priceInput.value);
-  
+
   goalInputs.forEach((g, i) => {
-    localStorage.setItem(`novair_goal${i+1}_name`, g.name.value);
-    localStorage.setItem(`novair_goal${i+1}_price`, g.price.value);
+    localStorage.setItem(`novair_goal${i + 1}_name`, g.name.value);
+    localStorage.setItem(`novair_goal${i + 1}_price`, g.price.value);
   });
 }
 
@@ -156,7 +176,7 @@ goalInputs.forEach(g => { allInputs.push(g.name); allInputs.push(g.price); });
 
 allInputs.forEach(el => el.addEventListener('input', () => {
   saveConfig();
-  if(localStorage.getItem('novair_start_time')) updateApp();
+  if (localStorage.getItem('novair_start_time')) updateApp();
 }));
 
 fpInstance = flatpickr("#quit-date", {
@@ -168,7 +188,7 @@ fpInstance = flatpickr("#quit-date", {
   time_24hr: true,
   locale: "de",
   disableMobile: true,
-  onChange: function(selectedDates) {
+  onChange: function (selectedDates) {
     if (selectedDates.length > 0) {
       const newTime = selectedDates[0].getTime();
       localStorage.setItem('novair_start_time', newTime.toString());
@@ -177,6 +197,7 @@ fpInstance = flatpickr("#quit-date", {
   }
 });
 
+// === DASHBOARD ===
 function initDashboard() {
   // Render Milestones structure once
   const healthContainer = document.getElementById('health-milestones');
@@ -230,6 +251,7 @@ function initDashboard() {
   setTimeout(() => lucide.createIcons(), 50);
 }
 
+// === ONBOARDING FLOW ===
 startBtn.addEventListener('click', () => {
   welcomeView.classList.add('hidden');
   onboardingView.classList.remove('hidden');
@@ -241,12 +263,12 @@ finishOnboardingBtn.addEventListener('click', () => {
   const cigsDay = obCigsDayInput.value || '20';
   const cigsPack = obCigsPackInput.value || '20';
   const price = obPriceInput.value || '8.00';
-  
+
   localStorage.setItem('novair_motivation', mot);
   localStorage.setItem('novair_cigsDay', cigsDay);
   localStorage.setItem('novair_cigsPack', cigsPack);
   localStorage.setItem('novair_pricePack', price);
-  
+
   // Set values in Settings Modal
   motivationInput.value = mot;
   cigsPerDayInput.value = cigsDay;
@@ -255,15 +277,15 @@ finishOnboardingBtn.addEventListener('click', () => {
 
   const now = new Date();
   localStorage.setItem('novair_start_time', now.getTime().toString());
-  
+
   const localNow = new Date();
   localNow.setMinutes(localNow.getMinutes() - localNow.getTimezoneOffset());
   if (fpInstance) fpInstance.setDate(localNow, false);
-  else quitInput.value = localNow.toISOString().slice(0,19);
+  else quitInput.value = localNow.toISOString().slice(0, 19);
 
   onboardingView.classList.add('hidden');
   dashboardView.classList.remove('hidden');
-  
+
   initDashboard();
   updateApp();
   updateInterval = setInterval(updateApp, 1000);
@@ -276,23 +298,36 @@ function updateApp() {
   const startTime = parseInt(startTimeStr, 10);
   const now = new Date().getTime();
   const diffMs = now - startTime;
-  
+
   const diffSec = Math.max(0, Math.floor(diffMs / 1000));
   const diffDays = Math.floor(diffSec / 86400);
   const diffHours = Math.floor((diffSec % 86400) / 3600);
   const diffMin = Math.floor((diffSec % 3600) / 60);
   const diffSecondsLeft = diffSec % 60;
-  
+
   const totalMinForCalc = diffSec / 60;
 
   // Berechnungen
   const cigsPerDay = parseFloat(cigsPerDayInput.value || 0);
   const cigsPerPack = parseFloat(cigsPerPackInput.value || 1);
   const pricePerPack = parseFloat(priceInput.value || 0);
-  
+
   const cigsPerMinute = cigsPerDay / 1440;
-  const avoidedCigs = cigsPerMinute * totalMinForCalc;
-  const moneySaved = (avoidedCigs / cigsPerPack) * pricePerPack;
+
+  const slipups = parseInt(localStorage.getItem('novair_slipups') || '0', 10);
+  const avoidedCigs = Math.max(0, (cigsPerMinute * totalMinForCalc) - slipups);
+  const moneySaved = Math.max(0, (avoidedCigs / cigsPerPack) * pricePerPack);
+
+  // Slipup UI Update
+  const slipupsEl = document.getElementById('stat-slipups');
+  if (slipupsEl) {
+    if (slipups > 0) {
+      slipupsEl.innerText = `(${slipups} Ausrutscher)`;
+      slipupsEl.classList.remove('hidden');
+    } else {
+      slipupsEl.classList.add('hidden');
+    }
+  }
 
   // Motivation Display
   const mot = localStorage.getItem('novair_motivation');
@@ -305,13 +340,13 @@ function updateApp() {
 
   // Stats Update
   document.getElementById('stat-days').innerText = diffDays.toString();
-  
+
   const hoursText = diffHours === 1 ? '1 Stunde' : `${diffHours} Stunden`;
   const minText = diffMin === 1 ? '1 Minute' : `${diffMin} Minuten`;
   const secText = diffSecondsLeft === 1 ? '1 Sekunde' : `${diffSecondsLeft} Sekunden`;
   document.getElementById('stat-seconds-ticker').innerText = `${hoursText}, ${minText}, ${secText}`;
-  
-  document.getElementById('stat-money').innerText = `${moneySaved.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €`;
+
+  document.getElementById('stat-money').innerText = `${moneySaved.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
   document.getElementById('stat-avoided').innerText = Math.floor(avoidedCigs).toLocaleString('de-DE');
 
   // --- Savings Goals Logic ---
@@ -323,39 +358,39 @@ function updateApp() {
   });
 
   const goalsCard = document.getElementById('savings-goals-card');
-  
+
   if (validGoals.length > 0 && goalsCard) {
     goalsCard.classList.remove('hidden');
     let remainingMoney = moneySaved;
-    
+
     [0, 1, 2].forEach(i => {
       const goalEl = document.getElementById(`goal-item-${i}`);
       if (!goalEl) return;
-      
+
       const textEl = document.getElementById(`goal-text-${i}`);
       const nameLabel = document.getElementById(`goal-name-label-${i}`);
       const priceLabel = document.getElementById(`goal-price-label-${i}`);
       const iconEl = document.getElementById(`goal-icon-${i}`);
       const percentEl = document.getElementById(`goal-percent-${i}`);
       const barEl = document.getElementById(`goal-bar-${i}`);
-      
+
       if (i < validGoals.length) {
         goalEl.classList.remove('hidden');
         const goal = validGoals[i];
-        
+
         const isFilled = remainingMoney >= goal.price;
         const progressMoney = isFilled ? goal.price : remainingMoney;
         const progressPercent = Math.min(100, (progressMoney / goal.price) * 100);
-        
+
         remainingMoney = Math.max(0, remainingMoney - goal.price);
-        
+
         const isDone = progressPercent === 100;
-        
+
         nameLabel.innerText = goal.name;
-        priceLabel.innerText = `(${goal.price.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 2})} €)`;
+        priceLabel.innerText = `(${goal.price.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €)`;
         percentEl.innerText = `${progressPercent.toFixed(1)}%`;
         barEl.style.width = `${progressPercent}%`;
-        
+
         if (isDone) {
           textEl.classList.remove('text-gray-800');
           textEl.classList.add('text-black');
@@ -365,7 +400,7 @@ function updateApp() {
           percentEl.classList.add('text-black');
           barEl.classList.remove('bg-gray-400');
           barEl.classList.add('bg-black');
-          
+
           if (!iconEl.hasChildNodes()) {
             iconEl.innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4 ml-1.5 text-black"></i>';
             lucide.createIcons({ root: iconEl });
@@ -379,7 +414,7 @@ function updateApp() {
           percentEl.classList.remove('text-black');
           barEl.classList.add('bg-gray-400');
           barEl.classList.remove('bg-black');
-          
+
           if (iconEl.hasChildNodes()) {
             iconEl.innerHTML = '';
           }
@@ -397,13 +432,16 @@ function updateApp() {
     const progress = Math.min(100, (totalMinForCalc / m.time) * 100);
     const isDone = progress === 100;
     const mId = 'health_' + index;
-    
+
     if (isDone && !celebratedMilestones.includes(mId)) {
       celebratedMilestones.push(mId);
       localStorage.setItem('novair_celebrated', JSON.stringify(celebratedMilestones));
       triggerCelebration(m.name, 'activity');
+    } else if (!isDone && celebratedMilestones.includes(mId)) {
+      celebratedMilestones = celebratedMilestones.filter(id => id !== mId);
+      localStorage.setItem('novair_celebrated', JSON.stringify(celebratedMilestones));
     }
-    
+
     const textEl = document.getElementById(`milestone-text-${index}`);
     const iconEl = document.getElementById(`milestone-icon-${index}`);
     const percentEl = document.getElementById(`milestone-percent-${index}`);
@@ -452,13 +490,16 @@ function updateApp() {
   badgesDef.forEach((b, index) => {
     const unlocked = b.condition(totalMinForCalc, moneySaved, avoidedCigs);
     const badgeEl = document.getElementById(`badge-${index}`);
-    
+
     if (unlocked && !celebratedMilestones.includes(b.id)) {
       celebratedMilestones.push(b.id);
       localStorage.setItem('novair_celebrated', JSON.stringify(celebratedMilestones));
       triggerCelebration(b.title, b.icon);
+    } else if (!unlocked && celebratedMilestones.includes(b.id)) {
+      celebratedMilestones = celebratedMilestones.filter(id => id !== b.id);
+      localStorage.setItem('novair_celebrated', JSON.stringify(celebratedMilestones));
     }
-    
+
     if (badgeEl) {
       if (unlocked) {
         badgeEl.className = "flex flex-col items-center p-4 rounded-xl border bg-gray-50 border-gray-200 badge-unlocked text-black transition-all duration-300";
@@ -469,18 +510,18 @@ function updateApp() {
   });
 }
 
-// Init
+// === APP BOOT ===
 const existingStartTime = localStorage.getItem('novair_start_time');
 if (existingStartTime) {
   welcomeView.classList.add('hidden');
   onboardingView.classList.add('hidden');
   dashboardView.classList.remove('hidden');
-  
+
   const d = new Date(parseInt(existingStartTime, 10));
   d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
   if (fpInstance) fpInstance.setDate(d, false);
   else quitInput.value = d.toISOString().slice(0, 19);
-  
+
   initDashboard();
   updateApp();
   updateInterval = setInterval(updateApp, 1000);
@@ -502,7 +543,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Celebration & Sharing
+// === CELEBRATION & SHARING ===
 function triggerCelebration(title, iconName) {
   if (typeof confetti !== 'undefined') {
     confetti({
@@ -512,20 +553,20 @@ function triggerCelebration(title, iconName) {
       colors: ['#000000', '#a3a3a3', '#e5e5e5']
     });
   }
-  
+
   document.getElementById('milestone-modal-title').innerText = title;
   const iconContainer = document.getElementById('milestone-modal-icon');
   if (iconContainer) {
     iconContainer.setAttribute('data-lucide', iconName);
     lucide.createIcons({ root: iconContainer.parentElement });
   }
-  
+
   currentShareData = {
     title: 'Novair Meilenstein',
     text: `${title} 🎉\nNovair`,
-    url: 'https://novair-app.de'
+    url: 'https://novair-rust.vercel.app'
   };
-  
+
   const modal = document.getElementById('milestone-modal');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
@@ -554,7 +595,7 @@ function shareMilestone() {
 }
 window.shareMilestone = shareMilestone;
 
-// Backup & Restore
+// === BACKUP & RESTORE ===
 function exportData() {
   const data = {};
   for (let i = 0; i < localStorage.length; i++) {
@@ -566,7 +607,7 @@ function exportData() {
   const jsonStr = JSON.stringify(data);
   const base64Str = btoa(unescape(encodeURIComponent(jsonStr)));
   const code = `NVR-${base64Str}`;
-  
+
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(code).then(() => {
       alert('Backup-Code in die Zwischenablage kopiert! Speichere ihn an einem sicheren Ort.');
@@ -582,18 +623,18 @@ window.exportData = exportData;
 function importData() {
   const input = document.getElementById('import-code-input');
   let code = input.value.trim();
-  
+
   if (!code) return alert('Bitte einen Code eingeben.');
   if (code.startsWith('NVR-')) code = code.substring(4);
-  
+
   try {
     const jsonStr = decodeURIComponent(escape(atob(code)));
     const data = JSON.parse(jsonStr);
-    
+
     if (!data || !data.novair_start_time) {
       throw new Error('Ungültiges Datenformat');
     }
-    
+
     // Clear old novair data
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const key = localStorage.key(i);
@@ -601,12 +642,12 @@ function importData() {
         localStorage.removeItem(key);
       }
     }
-    
+
     // Set new data
     for (const key in data) {
       localStorage.setItem(key, data[key]);
     }
-    
+
     alert('Daten erfolgreich wiederhergestellt! Die Seite wird nun neu geladen.');
     window.location.reload();
   } catch (e) {

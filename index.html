@@ -121,6 +121,7 @@
           </p>
           <div id="stat-avoided" class="text-4xl md:text-5xl font-bold mt-2 tracking-tight">0</div>
           <p class="text-gray-400 text-xs mt-3 font-medium">Zigaretten</p>
+          <p id="stat-slipups" class="text-red-400 font-medium text-xs mt-2 hidden"></p>
         </div>
       </div>
 
@@ -182,6 +183,10 @@
     
     <button onclick="toggleCravingModal()" class="bg-gray-100 hover:bg-gray-200 border border-gray-200 text-black rounded-full px-10 py-4 font-medium transition-all hover:scale-[1.02] active:scale-95">
       Ich habe es geschafft
+    </button>
+    <button onclick="logSlipUp('craving')" class="mt-6 text-gray-400 hover:text-red-500 font-medium text-sm transition-colors flex items-center space-x-2">
+      <i data-lucide="flame" class="w-4 h-4"></i>
+      <span>Ich bin schwach geworden (1 Zigarette)</span>
     </button>
   </div>
 
@@ -281,6 +286,10 @@
       <div class="mt-8 space-y-3">
         <button onclick="toggleSettingsModal()" class="w-full bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-lg">
           Speichern & Schließen
+        </button>
+        <button onclick="logSlipUp()" class="w-full bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-100 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2">
+          <i data-lucide="flame" class="w-4 h-4"></i>
+          <span>Ausrutscher (1 Zig. geraucht)</span>
         </button>
         <button onclick="resetTimer()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95">
           Neuer Versuch starten
