@@ -12,6 +12,13 @@ const cigsPerDayInput = document.getElementById('cigs-per-day');
 const cigsPerPackInput = document.getElementById('cigs-per-pack');
 const priceInput = document.getElementById('price-per-pack');
 
+// Goals Elements
+const goalInputs = [
+  { name: document.getElementById('goal1-name'), price: document.getElementById('goal1-price') },
+  { name: document.getElementById('goal2-name'), price: document.getElementById('goal2-price') },
+  { name: document.getElementById('goal3-name'), price: document.getElementById('goal3-price') }
+];
+
 // Onboarding Elements
 const obMotivationInput = document.getElementById('ob-motivation');
 const obCigsDayInput = document.getElementById('ob-cigs-day');
@@ -29,7 +36,17 @@ cigsPerDayInput.value = savedCigsDay || "20";
 cigsPerPackInput.value = savedCigsPack || "20";
 priceInput.value = savedPrice || "8.00";
 
+goalInputs.forEach((g, i) => {
+  const savedName = localStorage.getItem(`novair_goal${i+1}_name`);
+  const savedPrice = localStorage.getItem(`novair_goal${i+1}_price`);
+  if (savedName) g.name.value = savedName;
+  if (savedPrice) g.price.value = savedPrice;
+});
+
 let updateInterval;
+let fpInstance;
+let celebratedMilestones = JSON.parse(localStorage.getItem('novair_celebrated') || '[]');
+let currentShareData = null;
 
 // Milestones definition (in minutes)
 const milestones = [
@@ -90,7 +107,8 @@ function resetTimer() {
     
     const localNow = new Date();
     localNow.setMinutes(localNow.getMinutes() - localNow.getTimezoneOffset());
-    quitInput.value = localNow.toISOString().slice(0,19);
+    if (fpInstance) fpInstance.setDate(localNow, false);
+    else quitInput.value = localNow.toISOString().slice(0,19);
     
     updateApp();
     toggleSettingsModal();
@@ -98,24 +116,64 @@ function resetTimer() {
 }
 window.resetTimer = resetTimer;
 
+function swapGoal(index, dir) {
+  const idx = index - 1;
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx > 2) return;
+  
+  const g1 = goalInputs[idx];
+  const g2 = goalInputs[swapIdx];
+  
+  const tempName = g1.name.value;
+  const tempPrice = g1.price.value;
+  
+  g1.name.value = g2.name.value;
+  g1.price.value = g2.price.value;
+  
+  g2.name.value = tempName;
+  g2.price.value = tempPrice;
+  
+  saveConfig();
+  if(localStorage.getItem('novair_start_time')) updateApp();
+}
+window.swapGoal = swapGoal;
+
 function saveConfig() {
   localStorage.setItem('novair_motivation', motivationInput.value);
   localStorage.setItem('novair_cigsDay', cigsPerDayInput.value);
   localStorage.setItem('novair_cigsPack', cigsPerPackInput.value);
   localStorage.setItem('novair_pricePack', priceInput.value);
+  
+  goalInputs.forEach((g, i) => {
+    localStorage.setItem(`novair_goal${i+1}_name`, g.name.value);
+    localStorage.setItem(`novair_goal${i+1}_price`, g.price.value);
+  });
 }
 
 // Input Events
-[motivationInput, cigsPerDayInput, cigsPerPackInput, priceInput].forEach(el => el.addEventListener('input', () => {
+const allInputs = [motivationInput, cigsPerDayInput, cigsPerPackInput, priceInput];
+goalInputs.forEach(g => { allInputs.push(g.name); allInputs.push(g.price); });
+
+allInputs.forEach(el => el.addEventListener('input', () => {
   saveConfig();
   if(localStorage.getItem('novair_start_time')) updateApp();
 }));
 
-quitInput.addEventListener('change', () => {
-  const newTime = new Date(quitInput.value).getTime();
-  if (!isNaN(newTime)) {
-    localStorage.setItem('novair_start_time', newTime.toString());
-    updateApp();
+fpInstance = flatpickr("#quit-date", {
+  enableTime: true,
+  enableSeconds: true,
+  dateFormat: "Y-m-d\\TH:i:S",
+  altInput: true,
+  altFormat: "d.m.Y, H:i:S",
+  time_24hr: true,
+  locale: "de",
+  disableMobile: true,
+  onChange: function(selectedDates) {
+    if (selectedDates.length > 0) {
+      const newTime = selectedDates[0].getTime();
+      localStorage.setItem('novair_start_time', newTime.toString());
+      updateApp();
+    }
   }
 });
 
@@ -139,6 +197,25 @@ function initDashboard() {
       </div>
     </div>
   `).join('');
+
+  // Render Savings Goals structure once
+  const goalsContainer = document.getElementById('savings-goals-container');
+  if (goalsContainer) {
+    goalsContainer.innerHTML = [0, 1, 2].map((i) => `
+      <div id="goal-item-${i}" class="space-y-2.5 relative hidden">
+        <div class="flex justify-between items-end">
+          <p id="goal-text-${i}" class="font-semibold text-sm md:text-base text-gray-800 flex items-center transition-colors">
+            <span id="goal-name-label-${i}"></span> <span id="goal-price-label-${i}" class="text-xs ml-2 text-gray-400"></span>
+            <span id="goal-icon-${i}"></span>
+          </p>
+          <span id="goal-percent-${i}" class="text-xs md:text-sm font-mono font-medium text-gray-400">0.0%</span>
+        </div>
+        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden border border-gray-200">
+          <div id="goal-bar-${i}" class="progress-bar-inner h-full bg-gray-400 rounded-full relative" style="width: 0%"></div>
+        </div>
+      </div>
+    `).join('');
+  }
 
   // Render Badges structure once
   const badgesContainer = document.getElementById('badges-container');
@@ -181,7 +258,8 @@ finishOnboardingBtn.addEventListener('click', () => {
   
   const localNow = new Date();
   localNow.setMinutes(localNow.getMinutes() - localNow.getTimezoneOffset());
-  quitInput.value = localNow.toISOString().slice(0,19);
+  if (fpInstance) fpInstance.setDate(localNow, false);
+  else quitInput.value = localNow.toISOString().slice(0,19);
 
   onboardingView.classList.add('hidden');
   dashboardView.classList.remove('hidden');
@@ -236,10 +314,95 @@ function updateApp() {
   document.getElementById('stat-money').innerText = `${moneySaved.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €`;
   document.getElementById('stat-avoided').innerText = Math.floor(avoidedCigs).toLocaleString('de-DE');
 
+  // --- Savings Goals Logic ---
+  const validGoals = [];
+  goalInputs.forEach((g) => {
+    const n = g.name.value.trim();
+    const p = parseFloat(g.price.value);
+    if (n && p > 0 && !isNaN(p)) validGoals.push({ name: n, price: p });
+  });
+
+  const goalsCard = document.getElementById('savings-goals-card');
+  
+  if (validGoals.length > 0 && goalsCard) {
+    goalsCard.classList.remove('hidden');
+    let remainingMoney = moneySaved;
+    
+    [0, 1, 2].forEach(i => {
+      const goalEl = document.getElementById(`goal-item-${i}`);
+      if (!goalEl) return;
+      
+      const textEl = document.getElementById(`goal-text-${i}`);
+      const nameLabel = document.getElementById(`goal-name-label-${i}`);
+      const priceLabel = document.getElementById(`goal-price-label-${i}`);
+      const iconEl = document.getElementById(`goal-icon-${i}`);
+      const percentEl = document.getElementById(`goal-percent-${i}`);
+      const barEl = document.getElementById(`goal-bar-${i}`);
+      
+      if (i < validGoals.length) {
+        goalEl.classList.remove('hidden');
+        const goal = validGoals[i];
+        
+        const isFilled = remainingMoney >= goal.price;
+        const progressMoney = isFilled ? goal.price : remainingMoney;
+        const progressPercent = Math.min(100, (progressMoney / goal.price) * 100);
+        
+        remainingMoney = Math.max(0, remainingMoney - goal.price);
+        
+        const isDone = progressPercent === 100;
+        
+        nameLabel.innerText = goal.name;
+        priceLabel.innerText = `(${goal.price.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 2})} €)`;
+        percentEl.innerText = `${progressPercent.toFixed(1)}%`;
+        barEl.style.width = `${progressPercent}%`;
+        
+        if (isDone) {
+          textEl.classList.remove('text-gray-800');
+          textEl.classList.add('text-black');
+          priceLabel.classList.remove('text-gray-400');
+          priceLabel.classList.add('text-gray-500');
+          percentEl.classList.remove('text-gray-400');
+          percentEl.classList.add('text-black');
+          barEl.classList.remove('bg-gray-400');
+          barEl.classList.add('bg-black');
+          
+          if (!iconEl.hasChildNodes()) {
+            iconEl.innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4 ml-1.5 text-black"></i>';
+            lucide.createIcons({ root: iconEl });
+          }
+        } else {
+          textEl.classList.add('text-gray-800');
+          textEl.classList.remove('text-black');
+          priceLabel.classList.add('text-gray-400');
+          priceLabel.classList.remove('text-gray-500');
+          percentEl.classList.add('text-gray-400');
+          percentEl.classList.remove('text-black');
+          barEl.classList.add('bg-gray-400');
+          barEl.classList.remove('bg-black');
+          
+          if (iconEl.hasChildNodes()) {
+            iconEl.innerHTML = '';
+          }
+        }
+      } else {
+        goalEl.classList.add('hidden');
+      }
+    });
+  } else if (goalsCard) {
+    goalsCard.classList.add('hidden');
+  }
+
   // Health Milestones Targeted Update
   milestones.forEach((m, index) => {
     const progress = Math.min(100, (totalMinForCalc / m.time) * 100);
     const isDone = progress === 100;
+    const mId = 'health_' + index;
+    
+    if (isDone && !celebratedMilestones.includes(mId)) {
+      celebratedMilestones.push(mId);
+      localStorage.setItem('novair_celebrated', JSON.stringify(celebratedMilestones));
+      triggerCelebration(m.name, 'activity');
+    }
     
     const textEl = document.getElementById(`milestone-text-${index}`);
     const iconEl = document.getElementById(`milestone-icon-${index}`);
@@ -290,6 +453,12 @@ function updateApp() {
     const unlocked = b.condition(totalMinForCalc, moneySaved, avoidedCigs);
     const badgeEl = document.getElementById(`badge-${index}`);
     
+    if (unlocked && !celebratedMilestones.includes(b.id)) {
+      celebratedMilestones.push(b.id);
+      localStorage.setItem('novair_celebrated', JSON.stringify(celebratedMilestones));
+      triggerCelebration(b.title, b.icon);
+    }
+    
     if (badgeEl) {
       if (unlocked) {
         badgeEl.className = "flex flex-col items-center p-4 rounded-xl border bg-gray-50 border-gray-200 badge-unlocked text-black transition-all duration-300";
@@ -309,7 +478,8 @@ if (existingStartTime) {
   
   const d = new Date(parseInt(existingStartTime, 10));
   d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  quitInput.value = d.toISOString().slice(0, 19);
+  if (fpInstance) fpInstance.setDate(d, false);
+  else quitInput.value = d.toISOString().slice(0, 19);
   
   initDashboard();
   updateApp();
@@ -320,3 +490,128 @@ if (existingStartTime) {
   dashboardView.classList.add('hidden');
   setTimeout(() => lucide.createIcons(), 50);
 }
+
+// Register Service Worker for PWA Offline Support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(registration => {
+      console.log('SW registered: ', registration);
+    }).catch(registrationError => {
+      console.log('SW registration failed: ', registrationError);
+    });
+  });
+}
+
+// Celebration & Sharing
+function triggerCelebration(title, iconName) {
+  if (typeof confetti !== 'undefined') {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#000000', '#a3a3a3', '#e5e5e5']
+    });
+  }
+  
+  document.getElementById('milestone-modal-title').innerText = title;
+  const iconContainer = document.getElementById('milestone-modal-icon');
+  if (iconContainer) {
+    iconContainer.setAttribute('data-lucide', iconName);
+    lucide.createIcons({ root: iconContainer.parentElement });
+  }
+  
+  currentShareData = {
+    title: 'Novair Meilenstein',
+    text: `${title} 🎉\nNovair`,
+    url: 'https://novair-app.de'
+  };
+  
+  const modal = document.getElementById('milestone-modal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+window.triggerCelebration = triggerCelebration;
+
+function closeMilestoneModal() {
+  const modal = document.getElementById('milestone-modal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+window.closeMilestoneModal = closeMilestoneModal;
+
+function shareMilestone() {
+  if (navigator.share && currentShareData) {
+    navigator.share(currentShareData)
+      .then(() => closeMilestoneModal())
+      .catch(console.error);
+  } else if (currentShareData) {
+    const textToCopy = `${currentShareData.text}\n${currentShareData.url}`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      alert("In die Zwischenablage kopiert!");
+      closeMilestoneModal();
+    });
+  }
+}
+window.shareMilestone = shareMilestone;
+
+// Backup & Restore
+function exportData() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('novair_')) {
+      data[key] = localStorage.getItem(key);
+    }
+  }
+  const jsonStr = JSON.stringify(data);
+  const base64Str = btoa(unescape(encodeURIComponent(jsonStr)));
+  const code = `NVR-${base64Str}`;
+  
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(() => {
+      alert('Backup-Code in die Zwischenablage kopiert! Speichere ihn an einem sicheren Ort.');
+    }).catch(() => {
+      prompt('Fehler beim automatischen Kopieren. Kopiere den Code hier:', code);
+    });
+  } else {
+    prompt('Kopiere diesen Code an einen sicheren Ort:', code);
+  }
+}
+window.exportData = exportData;
+
+function importData() {
+  const input = document.getElementById('import-code-input');
+  let code = input.value.trim();
+  
+  if (!code) return alert('Bitte einen Code eingeben.');
+  if (code.startsWith('NVR-')) code = code.substring(4);
+  
+  try {
+    const jsonStr = decodeURIComponent(escape(atob(code)));
+    const data = JSON.parse(jsonStr);
+    
+    if (!data || !data.novair_start_time) {
+      throw new Error('Ungültiges Datenformat');
+    }
+    
+    // Clear old novair data
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('novair_')) {
+        localStorage.removeItem(key);
+      }
+    }
+    
+    // Set new data
+    for (const key in data) {
+      localStorage.setItem(key, data[key]);
+    }
+    
+    alert('Daten erfolgreich wiederhergestellt! Die Seite wird nun neu geladen.');
+    window.location.reload();
+  } catch (e) {
+    alert('Ungültiger Backup-Code. Bitte überprüfe deine Eingabe.');
+    console.error(e);
+  }
+}
+window.importData = importData;

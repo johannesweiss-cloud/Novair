@@ -12,6 +12,14 @@
   <!-- Custom Styles -->
   <link rel="stylesheet" href="css/style.css">
   
+  <!-- Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/de.js"></script>
+  
+  <!-- Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ffffff">
@@ -116,6 +124,16 @@
         </div>
       </div>
 
+      <!-- Savings Goals -->
+      <div id="savings-goals-card" class="clean-card rounded-2xl p-6 md:p-8 shadow-sm hidden">
+        <h3 class="text-xl font-bold mb-6 flex items-center text-black">
+          <i data-lucide="target" class="w-5 h-5 mr-2.5"></i> Deine Sparziele
+        </h3>
+        <div id="savings-goals-container" class="space-y-6">
+          <!-- Dynamically injected via JS -->
+        </div>
+      </div>
+
       <!-- Health Milestones -->
       <div class="clean-card rounded-2xl p-6 md:p-8 shadow-sm">
         <h3 class="text-xl font-bold mb-8 flex items-center text-black">
@@ -169,7 +187,7 @@
 
   <!-- Settings Modal -->
   <div id="settings-modal" class="fixed inset-0 bg-white/95 z-50 hidden flex-col items-center justify-center transition-opacity px-4">
-    <div class="w-full max-w-lg bg-white clean-card rounded-3xl p-6 md:p-8 shadow-2xl relative">
+    <div class="w-full max-w-lg bg-white clean-card rounded-3xl p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <button onclick="toggleSettingsModal()" class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
         <i data-lucide="x" class="w-6 h-6"></i>
       </button>
@@ -185,7 +203,7 @@
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Startzeitpunkt</label>
-          <input type="datetime-local" id="quit-date" step="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-sm font-medium transition-shadow">
+          <input type="text" id="quit-date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-sm font-medium transition-shadow">
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -203,6 +221,63 @@
         </div>
       </div>
       
+      <hr class="my-6 border-gray-100">
+      
+      <h3 class="text-lg font-bold mb-4 flex items-center text-black">
+        <i data-lucide="target" class="w-5 h-5 mr-2"></i> Sparziele (Optional)
+      </h3>
+      
+      <div class="space-y-4" id="settings-goals-container">
+        <!-- Goal 1 -->
+        <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+          <div class="flex flex-col space-y-1">
+            <button onclick="swapGoal(1, -1)" class="text-gray-400 hover:text-black transition-colors disabled:opacity-30" disabled id="goal1-up"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
+            <button onclick="swapGoal(1, 1)" class="text-gray-400 hover:text-black transition-colors" id="goal1-down"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+          </div>
+          <div class="flex-1 grid grid-cols-3 gap-2">
+            <div class="col-span-2">
+              <input type="text" id="goal1-name" placeholder="Ziel 1 (z.B. AirPods)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-sm font-medium">
+            </div>
+            <div class="col-span-1 relative">
+              <input type="number" id="goal1-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-sm font-medium">
+              <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+            </div>
+          </div>
+        </div>
+        <!-- Goal 2 -->
+        <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+          <div class="flex flex-col space-y-1">
+            <button onclick="swapGoal(2, -1)" class="text-gray-400 hover:text-black transition-colors" id="goal2-up"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
+            <button onclick="swapGoal(2, 1)" class="text-gray-400 hover:text-black transition-colors" id="goal2-down"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+          </div>
+          <div class="flex-1 grid grid-cols-3 gap-2">
+            <div class="col-span-2">
+              <input type="text" id="goal2-name" placeholder="Ziel 2" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-sm font-medium">
+            </div>
+            <div class="col-span-1 relative">
+              <input type="number" id="goal2-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-sm font-medium">
+              <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+            </div>
+          </div>
+        </div>
+        <!-- Goal 3 -->
+        <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+          <div class="flex flex-col space-y-1">
+            <button onclick="swapGoal(3, -1)" class="text-gray-400 hover:text-black transition-colors" id="goal3-up"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
+            <button onclick="swapGoal(3, 1)" class="text-gray-400 hover:text-black transition-colors disabled:opacity-30" disabled id="goal3-down"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+          </div>
+          <div class="flex-1 grid grid-cols-3 gap-2">
+            <div class="col-span-2">
+              <input type="text" id="goal3-name" placeholder="Ziel 3" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-sm font-medium">
+            </div>
+            <div class="col-span-1 relative">
+              <input type="number" id="goal3-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-sm font-medium">
+              <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div class="mt-8 space-y-3">
         <button onclick="toggleSettingsModal()" class="w-full bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-lg">
           Speichern & Schließen
@@ -211,6 +286,56 @@
           Neuer Versuch starten
         </button>
       </div>
+      
+      <hr class="my-6 border-gray-100">
+      
+      <h3 class="text-lg font-bold mb-4 flex items-center text-black">
+        <i data-lucide="database" class="w-5 h-5 mr-2"></i> Daten sichern & laden
+      </h3>
+      <p class="text-xs text-gray-500 mb-4">Erstelle einen Text-Code, um deinen Fortschritt auf einem anderen Gerät wiederherzustellen.</p>
+      
+      <div class="space-y-3">
+        <button onclick="exportData()" class="w-full bg-gray-50 hover:bg-gray-100 text-black border border-gray-200 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Backup-Code kopieren</span>
+        </button>
+        
+        <div class="flex space-x-2">
+          <input type="text" id="import-code-input" placeholder="Backup-Code einfügen..." class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-black text-sm font-medium">
+          <button onclick="importData()" class="bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-2 font-medium transition-transform hover:scale-[1.02] active:scale-95">
+            Laden
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Milestone/Share Modal -->
+  <div id="milestone-modal" class="fixed inset-0 bg-white/95 z-[60] hidden flex-col items-center justify-center transition-opacity px-4">
+    <div class="w-full max-w-sm bg-white clean-card rounded-3xl p-8 shadow-2xl relative text-center">
+      <button onclick="closeMilestoneModal()" class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+      
+      <div class="w-20 h-20 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-6">
+        <i id="milestone-modal-icon" data-lucide="award" class="w-10 h-10 text-black"></i>
+      </div>
+      
+      <h2 class="text-3xl font-black tracking-tight mb-2">Glückwunsch!</h2>
+      <p class="text-gray-500 font-medium mb-6">Du hast einen neuen Meilenstein erreicht.</p>
+      
+      <div class="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
+        <p id="milestone-modal-title" class="text-2xl font-bold text-black mb-1">10 Tage rauchfrei</p>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-4">Novair</p>
+      </div>
+      
+      <button onclick="shareMilestone()" class="w-full bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-4 font-bold text-lg transition-transform hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center space-x-2">
+        <i data-lucide="share" class="w-5 h-5"></i>
+        <span>Erfolg teilen</span>
+      </button>
+      <button onclick="closeMilestoneModal()" class="w-full mt-4 text-gray-400 hover:text-black font-medium text-sm transition-colors">
+        Später
+      </button>
     </div>
   </div>
 
