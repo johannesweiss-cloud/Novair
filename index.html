@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Novair | Dein Rauchfrei-Begleiter</title>
   
   <!-- CSS Frameworks & Icons -->
@@ -139,7 +139,7 @@
         <h3 class="text-xl font-bold mb-8 flex items-center text-black">
           <i data-lucide="activity" class="w-5 h-5 mr-2.5"></i> So erholt sich dein Körper
         </h3>
-        <div id="health-milestones" class="space-y-6 max-h-[400px] overflow-y-auto pr-4">
+        <div id="health-milestones" class="space-y-6 pr-4">
           <!-- Milestones injected via JS -->
         </div>
       </div>
@@ -157,7 +157,7 @@
     </main>
 
     <!-- Urge Surfing Button Fixed Bottom -->
-    <div class="fixed bottom-0 left-0 right-0 p-6 flex justify-center bg-gradient-to-t from-white via-white to-transparent pointer-events-none">
+    <div class="fixed bottom-0 left-0 right-0 pt-6 px-6 flex justify-center bg-gradient-to-t from-white via-white to-transparent pointer-events-none" style="padding-bottom: max(1.5rem, env(safe-area-inset-bottom))">
       <button onclick="toggleCravingModal()" class="pointer-events-auto bg-black text-white hover:bg-gray-800 rounded-full px-8 py-5 font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-2xl flex items-center space-x-3">
         <i data-lucide="wind" class="w-5 h-5"></i>
         <span>Akutes Verlangen?</span>
@@ -199,25 +199,25 @@
       <div class="space-y-5">
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Motivation</label>
-          <input type="text" id="motivation-text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-sm font-medium transition-shadow">
+          <input type="text" id="motivation-text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Startzeitpunkt</label>
-          <input type="text" id="quit-date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-sm font-medium transition-shadow">
+          <input type="text" id="quit-date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Zigaretten / Tag</label>
-            <input type="number" id="cigs-per-day" min="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-sm font-medium transition-shadow">
+            <input type="number" id="cigs-per-day" min="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
           </div>
           <div>
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Zig. / Packung</label>
-            <input type="number" id="cigs-per-pack" min="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-sm font-medium transition-shadow">
+            <input type="number" id="cigs-per-pack" min="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
           </div>
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Preis / Packung (€)</label>
-          <input type="number" id="price-per-pack" step="0.10" min="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-sm font-medium transition-shadow">
+          <input type="number" id="price-per-pack" step="0.10" min="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
         </div>
       </div>
       
@@ -236,10 +236,10 @@
           </div>
           <div class="flex-1 grid grid-cols-3 gap-2">
             <div class="col-span-2">
-              <input type="text" id="goal1-name" placeholder="Ziel 1 (z.B. AirPods)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-sm font-medium">
+              <input type="text" id="goal1-name" placeholder="Ziel 1 (z.B. AirPods)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-base font-medium">
             </div>
             <div class="col-span-1 relative">
-              <input type="number" id="goal1-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-sm font-medium">
+              <input type="number" id="goal1-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-base font-medium">
               <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
             </div>
           </div>
@@ -252,10 +252,10 @@
           </div>
           <div class="flex-1 grid grid-cols-3 gap-2">
             <div class="col-span-2">
-              <input type="text" id="goal2-name" placeholder="Ziel 2" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-sm font-medium">
+              <input type="text" id="goal2-name" placeholder="Ziel 2" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-base font-medium">
             </div>
             <div class="col-span-1 relative">
-              <input type="number" id="goal2-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-sm font-medium">
+              <input type="number" id="goal2-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-base font-medium">
               <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
             </div>
           </div>
@@ -268,10 +268,10 @@
           </div>
           <div class="flex-1 grid grid-cols-3 gap-2">
             <div class="col-span-2">
-              <input type="text" id="goal3-name" placeholder="Ziel 3" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-sm font-medium">
+              <input type="text" id="goal3-name" placeholder="Ziel 3" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-base font-medium">
             </div>
             <div class="col-span-1 relative">
-              <input type="number" id="goal3-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-sm font-medium">
+              <input type="number" id="goal3-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-base font-medium">
               <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
             </div>
           </div>
@@ -301,7 +301,7 @@
         </button>
         
         <div class="flex space-x-2">
-          <input type="text" id="import-code-input" placeholder="Backup-Code einfügen..." class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-black text-sm font-medium">
+          <input type="text" id="import-code-input" placeholder="Backup-Code einfügen..." class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-black text-base font-medium">
           <button onclick="importData()" class="bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-2 font-medium transition-transform hover:scale-[1.02] active:scale-95">
             Laden
           </button>
