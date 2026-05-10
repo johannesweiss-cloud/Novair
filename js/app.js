@@ -91,6 +91,18 @@ function toggleCravingModal() {
 // Make toggleCravingModal available globally since it's called from HTML inline onclick
 window.toggleCravingModal = toggleCravingModal;
 
+function resolveCraving() {
+  if (typeof confetti !== 'undefined') {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
+  toggleCravingModal();
+}
+window.resolveCraving = resolveCraving;
+
 function toggleSettingsModal() {
   const modal = document.getElementById('settings-modal');
   if (modal.classList.contains('hidden')) {
@@ -549,8 +561,7 @@ function triggerCelebration(title, iconName) {
     confetti({
       particleCount: 150,
       spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#000000', '#a3a3a3', '#e5e5e5']
+      origin: { y: 0.6 }
     });
   }
 
