@@ -1,40 +1,44 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Novair | Dein Rauchfrei-Begleiter</title>
-  <meta name="description" content="Starte jetzt in dein rauchfreies Leben mit Novair. Tracke deinen Fortschritt, feiere Meilensteine und spare Geld.">
-  
+  <meta name="description"
+    content="Starte jetzt in dein rauchfreies Leben mit Novair. Tracke deinen Fortschritt, feiere Meilensteine und spare Geld.">
+
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://novair-rust.vercel.app/">
   <meta property="og:title" content="Novair | Dein Rauchfrei-Begleiter">
-  <meta property="og:description" content="Starte jetzt in dein rauchfreies Leben mit Novair. Tracke deinen Fortschritt, feiere Meilensteine und spare Geld.">
+  <meta property="og:description"
+    content="Starte jetzt in dein rauchfreies Leben mit Novair. Tracke deinen Fortschritt, feiere Meilensteine und spare Geld.">
   <meta property="og:image" content="https://novair-rust.vercel.app/og-image.png">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://novair-rust.vercel.app/">
   <meta property="twitter:title" content="Novair | Dein Rauchfrei-Begleiter">
-  <meta property="twitter:description" content="Starte jetzt in dein rauchfreies Leben mit Novair. Tracke deinen Fortschritt, feiere Meilensteine und spare Geld.">
+  <meta property="twitter:description"
+    content="Starte jetzt in dein rauchfreies Leben mit Novair. Tracke deinen Fortschritt, feiere Meilensteine und spare Geld.">
   <meta property="twitter:image" content="https://novair-rust.vercel.app/og-image.png">
-  
+
   <!-- CSS Frameworks & Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  
+
   <!-- Custom Styles -->
   <link rel="stylesheet" href="css/style.css">
-  
+
   <!-- Flatpickr -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://npmcdn.com/flatpickr/dist/l10n/de.js"></script>
-  
+
   <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  
+
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ffffff">
@@ -42,60 +46,88 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-  <!-- Vercel Web Analytics -->
-  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
-  
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3b476a74-eec4-494e-aefd-154a3f82d787"></script>
+
   <!-- Vercel Speed Insights -->
   <script>
     window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
+
 <body class="min-h-screen flex flex-col items-center">
 
   <!-- Welcome View -->
-  <div id="welcome-view" class="flex-1 flex flex-col items-center justify-center w-full max-w-xl text-center px-6 hidden min-h-screen">
+  <div id="welcome-view"
+    class="flex-1 flex flex-col items-center justify-center w-full max-w-xl text-center px-6 hidden min-h-screen">
     <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-4">Novair</h1>
     <p class="text-xl md:text-2xl text-gray-500 font-light mb-16">Der einfachste Weg in dein rauchfreies Leben.</p>
-    <button id="start-btn" class="w-full bg-black text-white hover:bg-gray-800 rounded-full px-8 py-5 text-xl font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center space-x-3">
+    <button id="start-btn"
+      class="w-full bg-black text-white hover:bg-gray-800 rounded-full px-8 py-5 text-xl font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center space-x-3">
       <span>Ich bin bereit: Jetzt aufhören</span>
       <i data-lucide="arrow-right" class="w-6 h-6"></i>
     </button>
+    <div class="mt-8 w-full flex flex-col items-center space-y-4">
+      <div id="pwa-safari-warning" class="hidden w-full bg-orange-50 border border-orange-100 rounded-xl p-4 text-left">
+        <p class="text-xs text-orange-800 font-medium flex items-start">
+          <i data-lucide="info" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i>
+          <span><b>Von Safari hierher gewechselt?</b> Dein Fortschritt wurde von Apple aus Sicherheitsgründen nicht automatisch übernommen. Öffne Novair noch einmal im Safari-Browser, kopiere dort deinen Backup-Code und füge ihn hier ein!</span>
+        </p>
+      </div>
+      <button onclick="toggleWelcomeRestore()" class="text-gray-400 hover:text-black text-sm font-medium transition-colors flex items-center space-x-2">
+        <i data-lucide="download" class="w-4 h-4"></i>
+        <span>Schon dabei? Daten wiederherstellen</span>
+      </button>
+      <div id="welcome-restore-container" class="hidden w-full space-x-2 transition-all">
+        <input type="text" id="welcome-import-code" placeholder="Backup-Code einfügen..." class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-sm font-medium">
+        <button onclick="importData('welcome-import-code')" class="bg-black text-white hover:bg-gray-800 rounded-xl px-6 py-3 text-sm font-medium transition-transform hover:scale-[1.02] active:scale-95">
+          Laden
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Onboarding View -->
-  <div id="onboarding-view" class="flex-1 flex flex-col items-center justify-center w-full max-w-xl px-6 hidden min-h-screen mx-auto">
+  <div id="onboarding-view"
+    class="flex-1 flex flex-col items-center justify-center w-full max-w-xl px-6 hidden min-h-screen mx-auto">
     <div class="text-center mb-8">
       <h2 class="text-4xl md:text-5xl font-black tracking-tighter mb-2">Erzähl uns von dir</h2>
       <p class="text-gray-500 font-light text-lg">Damit wir deinen Erfolg berechnen können.</p>
     </div>
-    
+
     <div class="clean-card w-full rounded-3xl p-6 md:p-8 shadow-sm">
       <div class="space-y-6">
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
             <i data-lucide="heart" class="w-3 h-3 mr-1.5 inline"></i> Wofür hörst du auf?
           </label>
-          <input type="text" id="ob-motivation" placeholder="z.B. Für meine Gesundheit" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-lg font-medium transition-shadow">
+          <input type="text" id="ob-motivation" placeholder="z.B. Für meine Gesundheit"
+            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-lg font-medium transition-shadow">
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Zigaretten / Tag</label>
-            <input type="number" id="ob-cigs-day" min="1" placeholder="z.B. 15" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-lg font-medium transition-shadow">
+            <input type="number" id="ob-cigs-day" min="1" placeholder="z.B. 15"
+              class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-lg font-medium transition-shadow">
           </div>
           <div>
-            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Preis / Packung (€)</label>
-            <input type="number" id="ob-price-pack" step="0.10" min="0" placeholder="z.B. 8.00" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-lg font-medium transition-shadow">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Preis / Packung
+              (€)</label>
+            <input type="number" id="ob-price-pack" step="0.10" min="0" placeholder="z.B. 8.00"
+              class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-lg font-medium transition-shadow">
           </div>
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Zig. pro Packung</label>
-          <input type="number" id="ob-cigs-pack" min="1" placeholder="z.B. 20" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-lg font-medium transition-shadow">
+          <input type="number" id="ob-cigs-pack" min="1" placeholder="z.B. 20"
+            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-lg font-medium transition-shadow">
         </div>
       </div>
     </div>
-    
-    <button id="finish-onboarding-btn" class="w-full bg-black text-white hover:bg-gray-800 rounded-full px-8 py-5 mt-8 text-xl font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center space-x-3">
+
+    <button id="finish-onboarding-btn"
+      class="w-full bg-black text-white hover:bg-gray-800 rounded-full px-8 py-5 mt-8 text-xl font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center space-x-3">
       <span>Los geht's</span>
       <i data-lucide="check" class="w-6 h-6"></i>
     </button>
@@ -103,9 +135,10 @@
 
   <!-- Dashboard View -->
   <div id="dashboard-view" class="w-full max-w-3xl flex flex-col items-center hidden p-4 md:p-8">
-    
+
     <header class="w-full mb-10 text-center pt-4 md:pt-8 relative">
-      <button onclick="toggleSettingsModal()" class="absolute right-4 top-4 md:right-0 md:top-8 text-gray-400 hover:text-black transition-colors">
+      <button onclick="toggleSettingsModal()"
+        class="absolute right-4 top-4 md:right-0 md:top-8 text-gray-400 hover:text-black transition-colors">
         <i data-lucide="settings" class="w-6 h-6"></i>
       </button>
       <h1 class="text-4xl md:text-5xl font-black tracking-tighter mb-2">Novair</h1>
@@ -114,13 +147,14 @@
     </header>
 
     <main class="w-full space-y-6 pb-32">
-      
+
       <!-- Stats Dashboard -->
       <div class="clean-card rounded-3xl p-8 md:p-12 text-center flex flex-col items-center justify-center shadow-sm">
         <p class="text-gray-400 text-xs uppercase tracking-widest mb-2 font-bold">Rauchfrei seit</p>
         <div id="stat-days" class="text-7xl md:text-9xl font-black tracking-tighter mt-2 mb-2">0</div>
         <p class="text-gray-500 font-medium mb-6">Tage</p>
-        <div id="stat-seconds-ticker" class="text-gray-400 font-light text-sm md:text-base tabular-nums">0 Stunden, 0 Minuten, 0 Sekunden</div>
+        <div id="stat-seconds-ticker" class="text-gray-400 font-light text-sm md:text-base tabular-nums">0 Stunden, 0
+          Minuten, 0 Sekunden</div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -173,8 +207,11 @@
     </main>
 
     <!-- Urge Surfing Button Fixed Bottom -->
-    <div class="fixed bottom-0 left-0 right-0 pt-6 px-6 flex justify-center bg-gradient-to-t from-white via-white to-transparent pointer-events-none" style="padding-bottom: max(1.5rem, env(safe-area-inset-bottom))">
-      <button onclick="toggleCravingModal()" class="pointer-events-auto bg-black text-white hover:bg-gray-800 rounded-full px-8 py-5 font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-2xl flex items-center space-x-3">
+    <div
+      class="fixed bottom-0 left-0 right-0 pt-6 px-6 flex justify-center bg-gradient-to-t from-white via-white to-transparent pointer-events-none"
+      style="padding-bottom: max(1.5rem, env(safe-area-inset-bottom))">
+      <button onclick="toggleCravingModal()"
+        class="pointer-events-auto bg-black text-white hover:bg-gray-800 rounded-full px-8 py-5 font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-2xl flex items-center space-x-3">
         <i data-lucide="wind" class="w-5 h-5"></i>
         <span>Akutes Verlangen?</span>
       </button>
@@ -183,83 +220,101 @@
   </div>
 
   <!-- Craving Modal -->
-  <div id="craving-modal" class="fixed inset-0 bg-white z-50 hidden flex-col items-center justify-center transition-opacity">
+  <div id="craving-modal"
+    class="fixed inset-0 bg-white z-50 hidden flex-col items-center justify-center transition-opacity">
     <h2 class="text-3xl md:text-5xl font-bold mb-6 text-center px-4 tracking-tight">
       Urge Surfing
       <span class="text-lg md:text-xl font-light text-gray-500 mt-4 block">4s Einatmen - 4s Halten - 8s Ausatmen</span>
     </h2>
-    
+
     <div class="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center mb-16 mt-8">
       <div class="absolute inset-0 bg-gray-100 rounded-full breathing-circle"></div>
-      <div class="absolute w-32 h-32 md:w-40 md:h-40 bg-black rounded-full flex items-center justify-center z-10 shadow-2xl">
+      <div
+        class="absolute w-32 h-32 md:w-40 md:h-40 bg-black rounded-full flex items-center justify-center z-10 shadow-2xl">
         <span class="text-white font-medium text-xl md:text-2xl breathing-text tracking-wide text-center"></span>
       </div>
     </div>
-    
-    <button onclick="resolveCraving()" class="bg-gray-100 hover:bg-gray-200 border border-gray-200 text-black rounded-full px-10 py-4 font-medium transition-all hover:scale-[1.02] active:scale-95">
+
+    <button onclick="resolveCraving()"
+      class="bg-gray-100 hover:bg-gray-200 border border-gray-200 text-black rounded-full px-10 py-4 font-medium transition-all hover:scale-[1.02] active:scale-95">
       Ich habe es geschafft
     </button>
-    <button onclick="logSlipUp('craving')" class="mt-6 text-gray-400 hover:text-red-500 font-medium text-sm transition-colors flex items-center space-x-2">
+    <button onclick="logSlipUp('craving')"
+      class="mt-6 text-gray-400 hover:text-red-500 font-medium text-sm transition-colors flex items-center space-x-2">
       <i data-lucide="flame" class="w-4 h-4"></i>
       <span>Ich bin schwach geworden (1 Zigarette)</span>
     </button>
   </div>
 
   <!-- Settings Modal -->
-  <div id="settings-modal" class="fixed inset-0 bg-white/95 z-50 hidden flex-col items-center justify-center transition-opacity px-4">
-    <div class="w-full max-w-lg bg-white clean-card rounded-3xl p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-      <button onclick="toggleSettingsModal()" class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+  <div id="settings-modal"
+    class="fixed inset-0 bg-white/95 z-50 hidden flex-col items-center justify-center transition-opacity px-4">
+    <div
+      class="w-full max-w-lg bg-white clean-card rounded-3xl p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="toggleSettingsModal()"
+        class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
         <i data-lucide="x" class="w-6 h-6"></i>
       </button>
-      
+
       <h2 class="text-2xl font-bold mb-6 flex items-center">
         <i data-lucide="settings" class="w-5 h-5 mr-2"></i> Einstellungen
       </h2>
-      
+
       <div class="space-y-5">
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Motivation</label>
-          <input type="text" id="motivation-text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
+          <input type="text" id="motivation-text"
+            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Startzeitpunkt</label>
-          <input type="text" id="quit-date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
+          <input type="text" id="quit-date"
+            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Zigaretten / Tag</label>
-            <input type="number" id="cigs-per-day" min="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
+            <input type="number" id="cigs-per-day" min="1"
+              class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
           </div>
           <div>
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Zig. / Packung</label>
-            <input type="number" id="cigs-per-pack" min="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
+            <input type="number" id="cigs-per-pack" min="1"
+              class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
           </div>
         </div>
         <div>
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Preis / Packung (€)</label>
-          <input type="number" id="price-per-pack" step="0.10" min="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
+          <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Preis / Packung
+            (€)</label>
+          <input type="number" id="price-per-pack" step="0.10" min="0"
+            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-black text-base font-medium transition-shadow">
         </div>
       </div>
-      
+
       <hr class="my-6 border-gray-100">
-      
+
       <h3 class="text-lg font-bold mb-4 flex items-center text-black">
         <i data-lucide="target" class="w-5 h-5 mr-2"></i> Sparziele (Optional)
       </h3>
-      
+
       <div class="space-y-4" id="settings-goals-container">
         <!-- Goal 1 -->
         <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
           <div class="flex flex-col space-y-1">
-            <button onclick="swapGoal(1, -1)" class="text-gray-400 hover:text-black transition-colors disabled:opacity-30" disabled id="goal1-up"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
-            <button onclick="swapGoal(1, 1)" class="text-gray-400 hover:text-black transition-colors" id="goal1-down"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+            <button onclick="swapGoal(1, -1)"
+              class="text-gray-400 hover:text-black transition-colors disabled:opacity-30" disabled id="goal1-up"><i
+                data-lucide="chevron-up" class="w-4 h-4"></i></button>
+            <button onclick="swapGoal(1, 1)" class="text-gray-400 hover:text-black transition-colors" id="goal1-down"><i
+                data-lucide="chevron-down" class="w-4 h-4"></i></button>
           </div>
           <div class="flex-1 grid grid-cols-3 gap-2">
             <div class="col-span-2">
-              <input type="text" id="goal1-name" placeholder="Ziel 1 (z.B. AirPods)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-base font-medium">
+              <input type="text" id="goal1-name" placeholder="Ziel 1 (z.B. AirPods)"
+                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-base font-medium">
             </div>
             <div class="col-span-1 relative">
-              <input type="number" id="goal1-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-base font-medium">
+              <input type="number" id="goal1-price" placeholder="Preis" min="0" step="1"
+                class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-base font-medium">
               <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
             </div>
           </div>
@@ -267,15 +322,19 @@
         <!-- Goal 2 -->
         <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
           <div class="flex flex-col space-y-1">
-            <button onclick="swapGoal(2, -1)" class="text-gray-400 hover:text-black transition-colors" id="goal2-up"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
-            <button onclick="swapGoal(2, 1)" class="text-gray-400 hover:text-black transition-colors" id="goal2-down"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+            <button onclick="swapGoal(2, -1)" class="text-gray-400 hover:text-black transition-colors" id="goal2-up"><i
+                data-lucide="chevron-up" class="w-4 h-4"></i></button>
+            <button onclick="swapGoal(2, 1)" class="text-gray-400 hover:text-black transition-colors" id="goal2-down"><i
+                data-lucide="chevron-down" class="w-4 h-4"></i></button>
           </div>
           <div class="flex-1 grid grid-cols-3 gap-2">
             <div class="col-span-2">
-              <input type="text" id="goal2-name" placeholder="Ziel 2" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-base font-medium">
+              <input type="text" id="goal2-name" placeholder="Ziel 2"
+                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-base font-medium">
             </div>
             <div class="col-span-1 relative">
-              <input type="number" id="goal2-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-base font-medium">
+              <input type="number" id="goal2-price" placeholder="Preis" min="0" step="1"
+                class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-base font-medium">
               <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
             </div>
           </div>
@@ -283,50 +342,62 @@
         <!-- Goal 3 -->
         <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
           <div class="flex flex-col space-y-1">
-            <button onclick="swapGoal(3, -1)" class="text-gray-400 hover:text-black transition-colors" id="goal3-up"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
-            <button onclick="swapGoal(3, 1)" class="text-gray-400 hover:text-black transition-colors disabled:opacity-30" disabled id="goal3-down"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+            <button onclick="swapGoal(3, -1)" class="text-gray-400 hover:text-black transition-colors" id="goal3-up"><i
+                data-lucide="chevron-up" class="w-4 h-4"></i></button>
+            <button onclick="swapGoal(3, 1)"
+              class="text-gray-400 hover:text-black transition-colors disabled:opacity-30" disabled id="goal3-down"><i
+                data-lucide="chevron-down" class="w-4 h-4"></i></button>
           </div>
           <div class="flex-1 grid grid-cols-3 gap-2">
             <div class="col-span-2">
-              <input type="text" id="goal3-name" placeholder="Ziel 3" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-base font-medium">
+              <input type="text" id="goal3-name" placeholder="Ziel 3"
+                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black text-base font-medium">
             </div>
             <div class="col-span-1 relative">
-              <input type="number" id="goal3-price" placeholder="Preis" min="0" step="1" class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-base font-medium">
+              <input type="number" id="goal3-price" placeholder="Preis" min="0" step="1"
+                class="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-6 py-2 focus:outline-none focus:border-black text-base font-medium">
               <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div class="mt-8 space-y-3">
-        <button onclick="toggleSettingsModal()" class="w-full bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-lg">
+        <button onclick="toggleSettingsModal()"
+          class="w-full bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 shadow-lg">
           Speichern & Schließen
         </button>
-        <button onclick="logSlipUp()" class="w-full bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-100 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2">
+        <button onclick="logSlipUp()"
+          class="w-full bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-100 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2">
           <i data-lucide="flame" class="w-4 h-4"></i>
           <span>Ausrutscher (1 Zig. geraucht)</span>
         </button>
-        <button onclick="resetTimer()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95">
+        <button onclick="resetTimer()"
+          class="w-full bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95">
           Neuer Versuch starten
         </button>
       </div>
-      
+
       <hr class="my-6 border-gray-100">
-      
+
       <h3 class="text-lg font-bold mb-4 flex items-center text-black">
         <i data-lucide="database" class="w-5 h-5 mr-2"></i> Daten sichern & laden
       </h3>
-      <p class="text-xs text-gray-500 mb-4">Erstelle einen Text-Code, um deinen Fortschritt auf einem anderen Gerät wiederherzustellen.</p>
-      
+      <p class="text-xs text-gray-500 mb-4">Erstelle einen Text-Code, um deinen Fortschritt auf einem anderen Gerät
+        wiederherzustellen.</p>
+
       <div class="space-y-3">
-        <button onclick="exportData()" class="w-full bg-gray-50 hover:bg-gray-100 text-black border border-gray-200 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2">
+        <button onclick="exportData()"
+          class="w-full bg-gray-50 hover:bg-gray-100 text-black border border-gray-200 rounded-xl px-4 py-3 font-medium transition-transform hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2">
           <i data-lucide="download" class="w-4 h-4"></i>
           <span>Backup-Code kopieren</span>
         </button>
-        
+
         <div class="flex space-x-2">
-          <input type="text" id="import-code-input" placeholder="Backup-Code einfügen..." class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-black text-base font-medium">
-          <button onclick="importData()" class="bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-2 font-medium transition-transform hover:scale-[1.02] active:scale-95">
+          <input type="text" id="import-code-input" placeholder="Backup-Code einfügen..."
+            class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-black text-base font-medium">
+          <button onclick="importData()"
+            class="bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-2 font-medium transition-transform hover:scale-[1.02] active:scale-95">
             Laden
           </button>
         </div>
@@ -335,29 +406,33 @@
   </div>
 
   <!-- Milestone/Share Modal -->
-  <div id="milestone-modal" class="fixed inset-0 bg-white/95 z-[60] hidden flex-col items-center justify-center transition-opacity px-4">
+  <div id="milestone-modal"
+    class="fixed inset-0 bg-white/95 z-[60] hidden flex-col items-center justify-center transition-opacity px-4">
     <div class="w-full max-w-sm bg-white clean-card rounded-3xl p-8 shadow-2xl relative text-center">
-      <button onclick="closeMilestoneModal()" class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+      <button onclick="closeMilestoneModal()"
+        class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
         <i data-lucide="x" class="w-6 h-6"></i>
       </button>
-      
+
       <div class="w-20 h-20 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-6">
         <i id="milestone-modal-icon" data-lucide="award" class="w-10 h-10 text-black"></i>
       </div>
-      
+
       <h2 class="text-3xl font-black tracking-tight mb-2">Glückwunsch!</h2>
       <p class="text-gray-500 font-medium mb-6">Du hast einen neuen Meilenstein erreicht.</p>
-      
+
       <div class="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
         <p id="milestone-modal-title" class="text-2xl font-bold text-black mb-1">10 Tage rauchfrei</p>
         <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-4">Novair</p>
       </div>
-      
-      <button onclick="shareMilestone()" class="w-full bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-4 font-bold text-lg transition-transform hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center space-x-2">
+
+      <button onclick="shareMilestone()"
+        class="w-full bg-black text-white hover:bg-gray-800 rounded-xl px-4 py-4 font-bold text-lg transition-transform hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center space-x-2">
         <i data-lucide="share" class="w-5 h-5"></i>
         <span>Erfolg teilen</span>
       </button>
-      <button onclick="closeMilestoneModal()" class="w-full mt-4 text-gray-400 hover:text-black font-medium text-sm transition-colors">
+      <button onclick="closeMilestoneModal()"
+        class="w-full mt-4 text-gray-400 hover:text-black font-medium text-sm transition-colors">
         Später
       </button>
     </div>
@@ -366,4 +441,5 @@
   <!-- Custom Scripts -->
   <script src="js/app.js"></script>
 </body>
+
 </html>

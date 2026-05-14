@@ -99,6 +99,9 @@ function resolveCraving() {
       origin: { y: 0.6 }
     });
   }
+  if (window.umami) {
+    window.umami.track('craving_resolved');
+  }
   toggleCravingModal();
 }
 window.resolveCraving = resolveCraving;
@@ -138,6 +141,11 @@ function logSlipUp(source) {
   if (confirm('Hast du eine Zigarette geraucht? Ein Ausrutscher ist menschlich. Dein Tages-Zähler läuft weiter, wir ziehen nur diese Zigarette vom Ersparten ab.')) {
     const currentSlipups = parseInt(localStorage.getItem('novair_slipups') || '0', 10);
     localStorage.setItem('novair_slipups', (currentSlipups + 1).toString());
+    
+    if (window.umami) {
+      window.umami.track('slip_up_logged', { source: source || 'settings' });
+    }
+    
     updateApp();
     if (source === 'craving') {
       toggleCravingModal();
@@ -289,6 +297,13 @@ finishOnboardingBtn.addEventListener('click', () => {
 
   const now = new Date();
   localStorage.setItem('novair_start_time', now.getTime().toString());
+
+  if (window.umami) {
+    window.umami.track('onboarding_complete', { 
+      cigsPerDay: parseInt(cigsDay, 10),
+      pricePerPack: parseFloat(price)
+    });
+  }
 
   const localNow = new Date();
   localNow.setMinutes(localNow.getMinutes() - localNow.getTimezoneOffset());
@@ -448,6 +463,11 @@ function updateApp() {
     if (isDone && !celebratedMilestones.includes(mId)) {
       celebratedMilestones.push(mId);
       localStorage.setItem('novair_celebrated', JSON.stringify(celebratedMilestones));
+      
+      if (window.umami) {
+        window.umami.track('health_milestone_reached', { milestone: m.name });
+      }
+      
       triggerCelebration(m.name, 'activity');
     } else if (!isDone && celebratedMilestones.includes(mId)) {
       celebratedMilestones = celebratedMilestones.filter(id => id !== mId);
@@ -506,6 +526,11 @@ function updateApp() {
     if (unlocked && !celebratedMilestones.includes(b.id)) {
       celebratedMilestones.push(b.id);
       localStorage.setItem('novair_celebrated', JSON.stringify(celebratedMilestones));
+      
+      if (window.umami) {
+        window.umami.track('badge_unlocked', { badge: b.title, badge_id: b.id });
+      }
+      
       triggerCelebration(b.title, b.icon);
     } else if (!unlocked && celebratedMilestones.includes(b.id)) {
       celebratedMilestones = celebratedMilestones.filter(id => id !== b.id);
@@ -541,6 +566,19 @@ if (existingStartTime) {
   welcomeView.classList.remove('hidden');
   onboardingView.classList.add('hidden');
   dashboardView.classList.add('hidden');
+
+  const isPWA = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if (isPWA) {
+    const warningEl = document.getElementById('pwa-safari-warning');
+    if (warningEl) warningEl.classList.remove('hidden');
+    
+    const restoreContainer = document.getElementById('welcome-restore-container');
+    if (restoreContainer) {
+      restoreContainer.classList.remove('hidden');
+      restoreContainer.classList.add('flex');
+    }
+  }
+
   setTimeout(() => lucide.createIcons(), 50);
 }
 
@@ -631,8 +669,8 @@ function exportData() {
 }
 window.exportData = exportData;
 
-function importData() {
-  const input = document.getElementById('import-code-input');
+function importData(inputId = 'import-code-input') {
+  const input = document.getElementById(inputId);
   let code = input.value.trim();
 
   if (!code) return alert('Bitte einen Code eingeben.');
@@ -667,3 +705,15 @@ function importData() {
   }
 }
 window.importData = importData;
+
+function toggleWelcomeRestore() {
+  const container = document.getElementById('welcome-restore-container');
+  if (container.classList.contains('hidden')) {
+    container.classList.remove('hidden');
+    container.classList.add('flex');
+  } else {
+    container.classList.add('hidden');
+    container.classList.remove('flex');
+  }
+}
+window.toggleWelcomeRestore = toggleWelcomeRestore;
