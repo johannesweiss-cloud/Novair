@@ -72,16 +72,21 @@
       <div id="pwa-safari-warning" class="hidden w-full bg-orange-50 border border-orange-100 rounded-xl p-4 text-left">
         <p class="text-xs text-orange-800 font-medium flex items-start">
           <i data-lucide="info" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i>
-          <span><b>Von Safari hierher gewechselt?</b> Dein Fortschritt wurde von Apple aus Sicherheitsgründen nicht automatisch übernommen. Öffne Novair noch einmal im Safari-Browser, kopiere dort deinen Backup-Code und füge ihn hier ein!</span>
+          <span><b>Von Safari hierher gewechselt?</b> Dein Fortschritt wurde von Apple aus Sicherheitsgründen nicht
+            automatisch übernommen. Öffne Novair noch einmal im Safari-Browser, kopiere dort deinen Backup-Code und füge
+            ihn hier ein!</span>
         </p>
       </div>
-      <button onclick="toggleWelcomeRestore()" class="text-gray-400 hover:text-black text-sm font-medium transition-colors flex items-center space-x-2">
+      <button onclick="toggleWelcomeRestore()"
+        class="text-gray-400 hover:text-black text-sm font-medium transition-colors flex items-center space-x-2">
         <i data-lucide="download" class="w-4 h-4"></i>
         <span>Schon dabei? Daten wiederherstellen</span>
       </button>
       <div id="welcome-restore-container" class="hidden w-full space-x-2 transition-all">
-        <input type="text" id="welcome-import-code" placeholder="Backup-Code einfügen..." class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-sm font-medium">
-        <button onclick="importData('welcome-import-code')" class="bg-black text-white hover:bg-gray-800 rounded-xl px-6 py-3 text-sm font-medium transition-transform hover:scale-[1.02] active:scale-95">
+        <input type="text" id="welcome-import-code" placeholder="Backup-Code einfügen..."
+          class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-sm font-medium">
+        <button onclick="importData('welcome-import-code')"
+          class="bg-black text-white hover:bg-gray-800 rounded-xl px-6 py-3 text-sm font-medium transition-transform hover:scale-[1.02] active:scale-95">
           Laden
         </button>
       </div>
@@ -148,6 +153,30 @@
 
     <main class="w-full space-y-6 pb-32">
 
+      <!-- Daily Check-In -->
+      <div id="daily-checkin-card"
+        class="clean-card rounded-3xl p-6 md:p-8 bg-gradient-to-br from-green-50 to-white border border-green-100 shadow-sm hidden transition-all">
+        <h3 class="text-xl font-bold mb-2 text-black">Wie geht es dir heute?</h3>
+        <p class="text-gray-500 text-sm mb-6">Dein täglicher Check-In hilft dir, deinen Fortschritt zu sehen.</p>
+        <div class="grid grid-cols-3 gap-3">
+          <button onclick="performCheckIn('great')"
+            class="flex flex-col items-center justify-center py-4 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-95 shadow-sm">
+            <span class="text-3xl mb-2">🤩</span>
+            <span class="text-xs font-bold text-gray-600">Super</span>
+          </button>
+          <button onclick="performCheckIn('okay')"
+            class="flex flex-col items-center justify-center py-4 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-95 shadow-sm">
+            <span class="text-3xl mb-2">😐</span>
+            <span class="text-xs font-bold text-gray-600">Okay</span>
+          </button>
+          <button onclick="performCheckIn('bad')"
+            class="flex flex-col items-center justify-center py-4 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-95 shadow-sm">
+            <span class="text-3xl mb-2">😩</span>
+            <span class="text-xs font-bold text-gray-600">Schlecht</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Stats Dashboard -->
       <div class="clean-card rounded-3xl p-8 md:p-12 text-center flex flex-col items-center justify-center shadow-sm">
         <p class="text-gray-400 text-xs uppercase tracking-widest mb-2 font-bold">Rauchfrei seit</p>
@@ -171,6 +200,37 @@
           <div id="stat-avoided" class="text-4xl md:text-5xl font-bold mt-2 tracking-tight">0</div>
           <p class="text-gray-400 text-xs mt-3 font-medium">Zigaretten</p>
           <p id="stat-slipups" class="text-red-400 font-medium text-xs mt-2 hidden"></p>
+        </div>
+      </div>
+
+      <!-- Journey & Daily Fact -->
+      <div id="journey-card" class="clean-card rounded-2xl p-6 md:p-8 shadow-sm">
+        <div class="flex justify-between items-start mb-6">
+          <h3 class="text-xl font-bold flex items-center text-black">
+            <i data-lucide="map" class="w-5 h-5 mr-2.5"></i> Deine Reise
+          </h3>
+          <div
+            class="flex items-center space-x-1.5 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 shadow-sm"
+            title="Check-In Serie">
+            <i data-lucide="flame" class="w-4 h-4 text-orange-500"></i>
+            <span id="streak-counter" class="text-sm font-bold text-orange-600">0 Tage</span>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Stimmung (letzte 7 Tage)</p>
+          <div id="mood-trend-container" class="flex items-center space-x-2 overflow-x-auto pb-2">
+            <!-- 7-day grid injected via JS -->
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 relative overflow-hidden">
+          <div class="absolute -right-4 -top-4 opacity-5">
+            <i data-lucide="lightbulb" class="w-24 h-24"></i>
+          </div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5 relative z-10">Tipp des Tages</p>
+          <p id="daily-fact-text" class="text-sm md:text-base text-gray-700 font-medium leading-relaxed relative z-10">
+          </p>
         </div>
       </div>
 
@@ -402,7 +462,7 @@
           </button>
         </div>
       </div>
-      
+
       <div class="mt-8 text-center">
         <span class="text-[10px] font-bold text-gray-300 tracking-widest uppercase">NOVAIR V1.1.0</span>
       </div>

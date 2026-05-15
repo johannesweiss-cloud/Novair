@@ -37,11 +37,16 @@ Three mutually exclusive views (`welcome-view`, `onboarding-view`, `dashboard-vi
 - `novair_cigsDay` — cigarettes per day
 - `novair_cigsPack` — cigarettes per pack
 - `novair_pricePack` — price per pack in EUR
+- `novair_slipups` — count of logged slip-ups
+- `novair_celebrated` — JSON array of milestone/badge IDs already celebrated
+- `novair_checkins` — JSON array of daily check-ins `{ date, mood }` (max 14 entries)
+- `novair_streak` — current check-in streak count
+- `novair_last_checkin_date` — `Date.toDateString()` of the last check-in
 
 **Modal functions** (`toggleCravingModal`, `toggleSettingsModal`) are exposed on `window` because they are called from inline `onclick` attributes in the HTML.
 
 ## Design conventions
 
 - Language: German throughout (UI copy, variable names use English)
-- Style: "Simple but Premium" — monochromatic black/white, no color accents
+- Style: "Simple but Premium" — monochromatic black/white; color accents are used sparingly for specific motivational UI elements (e.g. green tint on the daily check-in card, orange for the streak counter)
 - Active state for milestones and badges uses `text-black` / `bg-black` replacing `text-gray-*` / `bg-gray-*`; all transitions are done by swapping Tailwind utility classes directly on DOM elements

@@ -51,6 +51,33 @@ let celebratedMilestones = JSON.parse(localStorage.getItem('novair_celebrated') 
 let currentShareData = null;
 
 // === DATA ===
+const dailyFacts = [
+  "Tag 1: Dein Puls und Blutdruck beginnen sich zu normalisieren.",
+  "Tag 2: Kohlenmonoxid in deinem Blut sinkt, Sauerstoff steigt auf Normalniveau.",
+  "Tag 3: Nikotin ist fast vollständig abgebaut. Die physische Abhängigkeit sinkt.",
+  "Tag 4: Dein Geruchs- und Geschmackssinn verfeinert sich spürbar.",
+  "Tag 5: Das Atmen fällt dir leichter, deine Bronchien entspannen sich.",
+  "Tag 6: Deine Lungenkapazität beginnt sich zu verbessern.",
+  "Tag 7: Eine Woche rauchfrei! Die schlimmsten körperlichen Entzugserscheinungen sind oft überstanden.",
+  "Tag 8: Dein Kreislauf stabilisiert sich weiter. Körperliche Aktivitäten fallen leichter.",
+  "Tag 9: Das Verlangen nach Zigaretten sollte jetzt seltener und schwächer werden.",
+  "Tag 10: Deine Haut wird besser durchblutet und sieht frischer aus.",
+  "Tag 11: Deine Zähne und Finger werden nicht mehr durch neuen Teer verfärbt.",
+  "Tag 12: Du hast bereits spürbar mehr Energie im Alltag.",
+  "Tag 13: Hustenanfälle und Kurzatmigkeit gehen langsam zurück.",
+  "Tag 14: Zwei Wochen! Deine Lungenfunktion hat sich signifikant verbessert."
+];
+
+const genericMotivations = [
+  "Jeder rauchfreie Tag ist ein Gewinn für deine Gesundheit.",
+  "Bleib stark! Du tust genau das Richtige.",
+  "Dein Körper dankt dir für jede nicht gerauchte Zigarette.",
+  "Die Gewohnheit verblasst mit jedem Tag, den du durchhältst.",
+  "Erinnere dich daran, warum du angefangen hast aufzuhören.",
+  "Du hast die Kontrolle zurückgewonnen.",
+  "Ein rauchfreies Leben bedeutet mehr Freiheit und Energie."
+];
+
 // Milestones definition (in minutes)
 const milestones = [
   { name: "Blutdruck normalisiert sich", time: 20, desc: "Puls und Blutdruck fallen auf normale Werte." },
@@ -125,6 +152,9 @@ function resetTimer() {
     const now = new Date();
     localStorage.setItem('novair_start_time', now.getTime().toString());
     localStorage.setItem('novair_slipups', '0');
+    localStorage.removeItem('novair_checkins');
+    localStorage.removeItem('novair_streak');
+    localStorage.removeItem('novair_last_checkin_date');
 
     const localNow = new Date();
     localNow.setMinutes(localNow.getMinutes() - localNow.getTimezoneOffset());
@@ -545,6 +575,117 @@ function updateApp() {
       }
     }
   });
+
+  // Check-In and Journey UI
+  updateJourneyAndCheckin(diffDays);
+}
+
+// === CHECK-IN & RETENTION LOGIC ===
+function performCheckIn(mood) {
+  const today = new Date().toDateString();
+  const checkins = JSON.parse(localStorage.getItem('novair_checkins') || '[]');
+  
+  // Update Streak
+  const lastCheckin = localStorage.getItem('novair_last_checkin_date');
+  let streak = parseInt(localStorage.getItem('novair_streak') || '0', 10);
+  
+  if (lastCheckin !== today) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (lastCheckin === yesterday.toDateString()) {
+      streak += 1;
+    } else {
+      streak = 1; // Broken streak or first check-in
+    }
+    
+    localStorage.setItem('novair_streak', streak.toString());
+    localStorage.setItem('novair_last_checkin_date', today);
+    
+    checkins.push({ date: today, mood: mood });
+    // Keep only the last 14 days of checkins to save space
+    if (checkins.length > 14) checkins.shift();
+    localStorage.setItem('novair_checkins', JSON.stringify(checkins));
+    
+    if (window.umami) {
+      window.umami.track('daily_checkin', { mood: mood, streak: streak });
+    }
+  }
+  
+  if (mood === 'great' && typeof confetti !== 'undefined') {
+    confetti({ particleCount: 50, spread: 40, origin: { y: 0.8 } });
+  }
+  
+  updateApp();
+}
+window.performCheckIn = performCheckIn;
+
+function updateJourneyAndCheckin(diffDays) {
+  const today = new Date().toDateString();
+  const lastCheckin = localStorage.getItem('novair_last_checkin_date');
+  let streak = parseInt(localStorage.getItem('novair_streak') || '0', 10);
+  const checkins = JSON.parse(localStorage.getItem('novair_checkins') || '[]');
+  
+  // Check if streak was broken (missed yesterday and today)
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (lastCheckin && lastCheckin !== today && lastCheckin !== yesterday.toDateString()) {
+    // Streak broken!
+    if (streak !== 0) {
+      streak = 0;
+      localStorage.setItem('novair_streak', '0');
+    }
+  }
+  
+  // Check-In Card Visibility
+  const checkinCard = document.getElementById('daily-checkin-card');
+  if (checkinCard) {
+    if (lastCheckin === today) {
+      checkinCard.classList.add('hidden');
+    } else {
+      checkinCard.classList.remove('hidden');
+    }
+  }
+  
+  // Journey Card Update
+  const streakCounter = document.getElementById('streak-counter');
+  if (streakCounter) streakCounter.innerText = `${streak} Tage`;
+  
+  const trendContainer = document.getElementById('mood-trend-container');
+  if (trendContainer) {
+    // Cache key includes today so the grid shifts correctly at midnight
+    const checkinsStr = today + JSON.stringify(checkins);
+    if (trendContainer.dataset.rendered !== checkinsStr) {
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        return d.toDateString();
+      });
+      const emojis = { 'great': '🤩', 'okay': '😐', 'bad': '😩' };
+
+      trendContainer.innerHTML = last7Days.map(dateStr => {
+        const checkin = checkins.find(c => c.date === dateStr);
+        if (checkin) {
+          return `<div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-lg border border-gray-100 flex-shrink-0" title="${dateStr}">${emojis[checkin.mood] || '😐'}</div>`;
+        }
+        return `<div class="w-8 h-8 rounded-full border border-dashed border-gray-200 flex-shrink-0" title="${dateStr}"></div>`;
+      }).join('');
+
+      trendContainer.dataset.rendered = checkinsStr;
+    }
+  }
+  
+  // Daily Fact Update
+  const factText = document.getElementById('daily-fact-text');
+  if (factText) {
+    if (diffDays < dailyFacts.length) {
+      factText.innerText = dailyFacts[diffDays];
+    } else {
+      // Pick a pseudo-random generic motivation based on days
+      const idx = diffDays % genericMotivations.length;
+      factText.innerText = genericMotivations[idx];
+    }
+  }
 }
 
 // === APP BOOT ===
